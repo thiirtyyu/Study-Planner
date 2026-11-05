@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { BookOpen, Mail, Lock, User, GraduationCap, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
-import { registerUser, loginUser, getLastEmail, quickSwitchUser, UserSession } from '../utils/authStore';
+import { BookOpen, Mail, Lock, User, GraduationCap, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { registerUser, loginUser, getLastEmail, UserSession } from '../utils/authStore';
 
 interface AuthPageProps {
   onLogin: (session: UserSession) => void;
@@ -8,8 +8,8 @@ interface AuthPageProps {
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState(() => getLastEmail());
-  const [password, setPassword] = useState('1234');
+  const [email, setEmail] = useState(() => getLastEmail() || '');
+  const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [faculty, setFaculty] = useState('วิศวกรรมศาสตร์');
   const [year, setYear] = useState('3');
@@ -46,7 +46,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
         setSuccessMsg('ลงทะเบียนสำเร็จ! กำลังเข้าสู่ระบบ...');
         setTimeout(() => {
           onLogin(loginResult.session!);
-        }, 400);
+        }, 300);
       }
     } else {
       const result = loginUser(email, password, rememberMe);
@@ -57,14 +57,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
       if (result.session) {
         onLogin(result.session);
       }
-    }
-  };
-
-  const handleDemoLogin = (demoEmail: string) => {
-    setError('');
-    const session = quickSwitchUser(demoEmail);
-    if (session) {
-      onLogin(session);
     }
   };
 
@@ -132,14 +124,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             {mode === 'register' && (
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  ชื่อ-นามสกุล / ชื่อเล่นที่เพื่อนรู้จัก
+                  ชื่อ-นามสกุล / ชื่อเล่น
                 </label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
                     required
-                    placeholder="เช่น กานต์ ว. หรือ พลอย วิศวะ"
+                    placeholder="เช่น กานต์ ว. หรือ พลอย"
                     value={displayName}
                     onChange={e => setDisplayName(e.target.value)}
                     className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
@@ -151,14 +143,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             {/* Email */}
             <div>
               <label className="text-xs font-semibold text-slate-700 block mb-1">
-                อีเมล (ใช้สำหรับรับแจ้งเตือนงานกลุ่ม)
+                อีเมล (ใช้รับการแจ้งเตือนงานกลุ่ม)
               </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="email"
                   required
-                  placeholder="yourname@university.ac.th หรือ gmail"
+                  placeholder="yourname@gmail.com หรือเมลมหาวิทยาลัย"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
@@ -176,7 +168,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                 <input
                   type="password"
                   required
-                  placeholder="รหัสผ่านเข้าใช้งาน"
+                  placeholder="กรอกรหัสผ่านของคุณ"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
@@ -193,7 +185,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                   </label>
                   <input
                     type="text"
-                    placeholder="เช่น วิศวะ / บริหาร"
+                    placeholder="เช่น วิศวกรรมศาสตร์"
                     value={faculty}
                     onChange={e => setFaculty(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20"
@@ -231,12 +223,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                   จดจำการเข้าสู่ระบบในอุปกรณ์นี้
                 </span>
               </label>
-
-              {mode === 'login' && (
-                <span className="text-[11px] text-slate-400">
-                  รหัสผ่านเริ่มต้น: 1234
-                </span>
-              )}
             </div>
 
             {/* Submit Button */}
@@ -249,45 +235,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             </button>
 
           </form>
-
-          {/* Quick Demo Login (Perfect for testing group collaboration) */}
-          <div className="mt-6 pt-5 border-t border-stone-100">
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center space-x-1">
-              <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-              <span>หรือคลิกเข้าใช้งานด่วนด้วยบัญชีตัวอย่าง:</span>
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('karn@student.ku.th')}
-                className="p-2 rounded-xl border border-stone-200 hover:border-brand-500 hover:bg-brand-50/50 transition-all text-center"
-              >
-                <p className="text-xs font-bold text-slate-800">กานต์ ว.</p>
-                <p className="text-[10px] text-slate-500">หัวหน้ากลุ่ม</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('belle@student.ku.th')}
-                className="p-2 rounded-xl border border-stone-200 hover:border-brand-500 hover:bg-brand-50/50 transition-all text-center"
-              >
-                <p className="text-xs font-bold text-slate-800">เบลล์ ช.</p>
-                <p className="text-[10px] text-slate-500">สมาชิกทีม</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('pete@student.ku.th')}
-                className="p-2 rounded-xl border border-stone-200 hover:border-brand-500 hover:bg-brand-50/50 transition-all text-center"
-              >
-                <p className="text-xs font-bold text-slate-800">พีท ภ.</p>
-                <p className="text-[10px] text-slate-500">สมาชิกทีม</p>
-              </button>
-            </div>
-            <p className="text-[10px] text-slate-400 mt-2 text-center">
-              💡 ช่วยให้คุณทดสอบสร้างกลุ่มด้วยบัญชีหนึ่ง แล้วสลับไปอีกบัญชีเพื่อกดรหัสเข้าร่วมได้ทันที
-            </p>
-          </div>
 
         </div>
 
