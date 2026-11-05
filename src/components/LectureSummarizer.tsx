@@ -32,6 +32,20 @@ interface LectureSummarizerProps {
   onOpenUploadModal: () => void;
 }
 
+function renderFormattedPoint(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return (
+    <span>
+      {parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={i} className="text-slate-900 font-bold">{part.slice(2, -2)}</strong>;
+        }
+        return part;
+      })}
+    </span>
+  );
+}
+
 export const LectureSummarizer: React.FC<LectureSummarizerProps> = ({
   subjects,
   materials,
@@ -350,7 +364,7 @@ export const LectureSummarizer: React.FC<LectureSummarizerProps> = ({
                     {sec.keyPoints.map((point, pIdx) => (
                       <li key={pIdx} className="flex items-start space-x-2 text-sm text-slate-700 leading-relaxed">
                         <span className="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0"></span>
-                        <span>{point}</span>
+                        <div className="flex-1">{renderFormattedPoint(point)}</div>
                       </li>
                     ))}
                   </ul>
@@ -375,7 +389,7 @@ export const LectureSummarizer: React.FC<LectureSummarizerProps> = ({
                       {sec.examTraps.map((trap, tIdx) => (
                         <li key={tIdx} className="text-xs text-amber-950 flex items-start space-x-2 leading-relaxed">
                           <span className="text-amber-600 font-bold shrink-0">⚠️</span>
-                          <span>{trap}</span>
+                          <div className="flex-1">{renderFormattedPoint(trap)}</div>
                         </li>
                       ))}
                     </ul>
